@@ -1,0 +1,239 @@
+\documentclass[9pt]{beamer}
+
+\input{StyleFile.tex}
+
+\usepackage{wrapfig}
+
+\usepackage{tikz}
+\usepackage[main=russian,english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1,T2A]{fontenc}
+
+\usepackage{xcolor, color, soul}
+\sethlcolor{red}
+
+\usepackage{tabularx}
+\usepackage{geometry}
+\usepackage{wrapfig}
+
+\usepackage{subfig}
+
+\usepackage[backend=biber,style=numeric,urldate=long,maxbibnames=99,sorting=none]{biblatex}
+\addbibresource{refs.bib}
+
+\title[\textbf{plus ultra}]{Towards Understanding Ensembles, Knowledge Distillation and Self-Distillation in Deep Learning} % The short title appears at the bottom of every slide, the full title is only on the title page
+
+\author[\textbf{Алихан Зиманов}]
+{Алихан Зиманов} % Your name
+
+\institute[\textbf{ФКН}] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
+{Факультет компьютерных наук\\
+НИУ ВШЭ % Your institution for the title page
+}
+
+\jointwork{Research of Previous Works}
+\conference{НИС, Москва, 2024}
+
+%===== Uncomment the following if you wish to use references
+%\usepackage[backend=bibtex,citestyle=authoryear-icomp,natbib,maxcitenames=1]{biblatex}
+%\addbibresource{bibfile.bib}
+
+% use this so appendices' page numbers do not count
+\usepackage{appendixnumberbeamer}
+
+\begin{document}
+
+% Title page, navigation surpressed, no page number
+{
+\beamertemplatenavigationsymbolsempty
+\begin{frame}[plain]
+\titlepage
+\end{frame}
+}
+
+% TOC, navigation surpressed, no page number
+{
+\beamertemplatenavigationsymbolsempty
+\defbeamertemplate*{headline}{miniframes theme no subsection no content}
+{ \begin{beamercolorbox}{section in head/foot}
+    \vskip\headheight
+  \end{beamercolorbox}}
+\begin{frame}{Содержание} 
+\tableofcontents 
+\end{frame} 
+}
+
+\addtocounter{framenumber}{-2}
+
+\section{Ансамблирование}
+
+\begin{frame}{Введение}
+
+    \begin{block}{Вопрос}
+        Каков глобальный смысл ансамблирования?
+    \end{block}
+
+    \begin{block}{Ответ\footnote{Мнение экспертов}}<2->
+        Много моделей помогают друг другу чтобы решить большую задачу.
+    \end{block}
+
+    \begin{columns}<2->
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=0.9\textwidth]{images/image2.png}
+            \end{figure}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=0.9\textwidth]{images/image1.jpg}
+            \end{figure}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}
+
+    \begin{block}{ВНИМАНИЕ}
+        Главный вопрос: почему ансамблирование улучшает результаты?
+    \end{block}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.9\textwidth]{images/image3.jpg}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{История ансамблирования}
+    \begin{block}{Подходы ансамблирования}
+        \begin{enumerate}
+            \item Bootstrap Aggregating (Bagging)~\cite{breiman96} --- порождает множество предикторов на случайных подвыборках данных и усредняет (или берет голос большинства) предсказания.
+            \item Boosting~\cite{FREUND1997119} --- AdaBoost добавляет легкие модели по одной для компенсирования слабостей предыдущих моделей.
+            \item Random Forests~\cite{random_forests} --- классика.
+            \item Gradient Boosting Machine~\cite{gbm} --- классика.
+            \item Stacking~\cite{WOLPERT1992241} --- мета-модель обучается на выходах базовых моделей.
+        \end{enumerate}
+    \end{block}
+\end{frame}
+
+\begin{frame}{В поисках ответов}
+    \begin{block}{}
+        Исследуем возможные объяснения эффективности ансамблей.
+    \end{block}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.9\textwidth]{images/image4.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Bias-Variance Decomposition}
+    \begin{block}{Пусть}
+        $D = \{ (x_1, y_1), \ldots, (x_n, y_n) \}, y = f(x) + \varepsilon$ и $\hat{f}(x; D)$ --- наша модель.
+    \end{block}
+
+    \begin{block}{Тогда}
+        \begin{equation*}
+            \mathbb{E}_{D, \varepsilon} \left[ (y - \hat{f}(x; D))^2 \right] = \left( \text{Bias}_D \left[ \hat{f}(x; D) \right] \right)^2 + \text{Var}_D \left[ \hat{f}(x; D) \right] + \sigma^2
+        \end{equation*}
+        где
+        \begin{align*}
+            &\text{Bias}_D \left[ \hat{f}(x; D) \right] = \mathbb{E}_D \left[ \hat{f}(x; D) - f(x) \right] = \mathbb{E}_D \left[ \hat{f}(x; D) \right] - \mathbb{E}_{y | x} \left[ y(x) \right] \\
+            &\text{Var}_D \left[ \hat{f}(x; D) \right] = \mathbb{E}_D \left[ \left( \mathbb{E}_D \left[ \hat{f}(x; D) \right] - \hat{f}(x; D) \right)^2 \right] \\
+            &\sigma^2 = \mathbb{E}_y \left[ (y - f(x))^2 \right]
+        \end{align*}
+    \end{block}
+
+    \begin{block}{}
+        Ансамблирование (беггинг) уменьшает Var без увеличения Bias.
+    \end{block}
+\end{frame}
+
+\begin{frame}{The Condorcet Jury Theorem}
+    \begin{block}{Формулировка}
+        Пусть есть независимые голосующие, у каждого из которых одна и та же вероятность правильно проголосовать строго больше $1/2$. Тогда вероятность решения большинства за правильный выбор будет увеличиваться с увеличением количества голосующих (и стремиться к $1$ в пределе).
+    \end{block}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.7\textwidth]{images/image5.jpg}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Neural Tangent Kernel}
+    
+\end{frame}
+
+\section{Дистилляция}
+
+\begin{frame}{Knowledge Distillation}
+    % https://neptune.ai/blog/knowledge-distillation
+    \begin{block}{}
+        \begin{itemize}
+            \item Response-based knowledge
+            \item Feature-based knowledge
+            \item Relation-based knowledge
+        \end{itemize}
+    \end{block}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.7\textwidth]{images/image6.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Практическая эффективность дистилляции}
+    \begin{figure}{}
+        \centering
+        \includegraphics[width=0.7\textwidth]{images/image7.jpg}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Дистилляция ансамбля}
+    
+\end{frame}
+
+% \begin{frame}{Transfer Learning}
+
+%     \begin{definition}
+%         Применение опыта, полученного при решении одной задачи для решения новой задачи из той же области.
+%     \end{definition}
+
+%     \begin{example}<2->[Классификация изображений]
+%         ResNet, обученный на ImageNet будет содержать в себе информацию о паттернах в картинках в целом, поэтому можно эту абстрактную информацию переиспользовать для решения других, более узких задач.
+%     \end{example}
+
+%     \begin{example}<3->[Языковая модель]
+%         Эмбеддинги, обученные на колоссальных датасетах будут содержать в себе сложную информацию о структуре языка, поэтому их переиспользование для других задач NLP будет весьма удобным.
+%     \end{example}
+
+% \end{frame}
+
+% \begin{frame}{Prefix-Tuning}
+
+%     \begin{block}{Prefix-tuning}
+%         Вторая рассматриваемая техника PEFT это Prefix Tuning~\cite{prefix}. Эта техника пытается решить те же проблемы, что и adapter tuning, а именно обучаться на новые задачи не теряя способности решать старые, а также обучение минимального количества весов модели\footnote{оказывается у этого есть название --- lightweight fine-tunning}, чтобы для новых задач не требовалось хранить полные копии исходной модели.
+%     \end{block}
+
+%     \begin{block}{Задачи}
+%         Авторы статьи предлагают применить эту технику для задач типа table-to-text и summarization.
+
+%         \begin{itemize}
+%             \item Table-to-text --- генерация текстового описания объекта по структурированному табличному описанию. Например, из табличного представления $(\text{name}: \text{'Starbucks'}, \text{type}: \text{'coffee shop'})$ хотим получить текстовое описание: 'Starbucks serves coffee'.
+%             \item Summarization --- генерация краткого текстового описания более длинного исходного текста.
+%         \end{itemize}
+
+%     \end{block}
+
+% \end{frame}
+
+
+
+\begin{frame}[allowframebreaks]
+    \frametitle{Список литературы}
+    \printbibliography
+\end{frame}
+
+
+\end{document}
