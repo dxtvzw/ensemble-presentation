@@ -18,6 +18,8 @@
 
 \usepackage{subfig}
 
+\usepackage{movie15}
+
 \usepackage[backend=biber,style=numeric,urldate=long,maxbibnames=99,sorting=none]{biblatex}
 \addbibresource{refs.bib}
 
@@ -146,7 +148,7 @@
     \end{block}
 
     \begin{block}{}
-        Ансамблирование (беггинг) уменьшает Var без увеличения Bias.
+        Ансамблирование (беггинг) уменьшает Var\footnote{чувствительность к небольшим колебаниям входных данных} без увеличения Bias\footnote{ошибочные предположения в алгоритме}.
     \end{block}
 \end{frame}
 
@@ -176,7 +178,13 @@
 \end{frame}
 
 \begin{frame}{NTK in Ensembles}
-    
+    \begin{block}{}
+        NTK описывает обучение нейронной сети: \href{https://upload.wikimedia.org/wikipedia/commons/0/04/NTK_evolution.gif}{ссылка}.
+    \end{block}
+
+    \begin{block}{}
+        Независимо обученные ``random feature models'' улучшают качество в силу расширения признакового пространства~\cite{ntk1}: \[ \Phi_{W_0}(x) \to \left\{ \Phi_{W_0^{(i)}}(x) \right\}_{i \in L} \]
+    \end{block}
 \end{frame}
 
 \section{Дистилляция}
