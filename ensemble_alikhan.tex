@@ -21,7 +21,7 @@
 \usepackage[backend=biber,style=numeric,urldate=long,maxbibnames=99,sorting=none]{biblatex}
 \addbibresource{refs.bib}
 
-\title[\textbf{plus ultra}]{Towards Understanding Ensembles, Knowledge Distillation and Self-Distillation in Deep Learning} % The short title appears at the bottom of every slide, the full title is only on the title page
+\title[\textbf{поставьте 10}]{Towards Understanding Ensembles, Knowledge Distillation and Self-Distillation in Deep Learning} % The short title appears at the bottom of every slide, the full title is only on the title page
 
 \author[\textbf{Алихан Зиманов}]
 {Алихан Зиманов} % Your name
@@ -162,6 +162,20 @@
 \end{frame}
 
 \begin{frame}{Neural Tangent Kernel}
+    \begin{block}{Определение}
+        $f: \mathbb{R}^{D + d} \to \mathbb{R}$ --- нейронная сеть со входами $x \in \mathbb{R}^d$ и весами $W \in \mathbb{R}^D$. Тогда $f$ можно иногда аппроксимировать как \[ f(W, x) \approx f(W_0, x) + \langle W - W_0, \nabla_W f(W_0, x) \rangle \] где $W_0$ --- случайная инициализация и $\Phi_{W_0}(x) := \nabla_W f(W_0, x)$ --- neural tangent kernel.
+    \end{block}
+
+    \begin{block}<2->{Результат}
+        Обучение нейронной сети $f$ аппроксимируется обучением линейной функции $\Phi_{W_0}(x)$ (kernel trick).
+    \end{block}
+
+    \begin{block}<3->{Зачем?}
+        Эта двойственность позволяет использовать простые уравнения в замкнутой форме, описывающие динамику обучения, обобщение и предсказания толстых нейронных сетей.
+    \end{block}
+\end{frame}
+
+\begin{frame}{NTK in Ensembles}
     
 \end{frame}
 
@@ -183,15 +197,42 @@
     \end{figure}
 \end{frame}
 
-\begin{frame}{Практическая эффективность дистилляции}
-    \begin{figure}{}
+\begin{frame}{Практическая эффективность дистилляции~\cite{sanh2020distilbert}}
+
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=0.8\textwidth]{images/image10.png}
+                \caption{Обычное обучение}
+            \end{figure}
+        \end{column}
+
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics<2->[width=0.8\textwidth]{images/image11.png}
+                \caption{Дистилляция}
+            \end{figure}
+        \end{column}
+    \end{columns}
+
+    \begin{figure}
         \centering
-        \includegraphics[width=0.7\textwidth]{images/image7.jpg}
+        \includegraphics<3->[width=0.7\textwidth]{images/image7.jpg}
     \end{figure}
 \end{frame}
 
-\begin{frame}{Дистилляция ансамбля}
-    
+\begin{frame}{Дистилляция ансамбля~\cite{hinton2015distilling}}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.5\textwidth]{images/image8.png}
+    \end{figure}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.8\textwidth]{images/image9.jpg}
+    \end{figure}
 \end{frame}
 
 % \begin{frame}{Transfer Learning}
